@@ -11,3 +11,5 @@ app.listen(port, () => {
 })
 }
 startingApp()
+
+export { app };
