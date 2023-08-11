@@ -16,15 +16,6 @@ postsRouter.get('/', async (_req: Request, res: Response) => {
     res.status(sendStatus.OK_200).send(allPosts);
   })
 
-postsRouter.get('/:id', async (req: RequestWithParams<getByIdParam>, res: Response) => {
-  const foundPost = await postsRepository.findPostById(req.params.id)    
-    if (!foundPost) {
-      res.sendStatus(sendStatus.NOT_FOUND_404)
-    } else {
-       res.status(sendStatus.OK_200).send(foundPost)
-  }
-  })
-  
 postsRouter.post('/', 
   authorizationValidation,
   createPostValidation,
@@ -35,13 +26,20 @@ async (req: RequestWithBody<PostsInputModel>, res: Response<PostsViewModel>) => 
   if(!newPost) return res.sendStatus(sendStatus.BAD_REQUEST_400)
   
   return res.status(sendStatus.CREATED_201).send(newPost)
-  
-
 })
+
+postsRouter.get('/:id', async (req: RequestWithParams<getByIdParam>, res: Response) => {
+  const foundPost = await postsRepository.findPostById(req.params.id)    
+    if (!foundPost) {
+      res.sendStatus(sendStatus.NOT_FOUND_404)
+    } else {
+       res.status(sendStatus.OK_200).send(foundPost)
+  }
+  })
   
 postsRouter.put('/:id', 
-authorizationValidation,
-updatePostValidation,
+  authorizationValidation,
+  updatePostValidation,
 async (req: Request<getByIdParam, PostsInputModel>, res: Response<PostsViewModel>) => {
   const updatePost =  await postsRepository.updatePost(req.params.id, req.body)
 
@@ -53,8 +51,8 @@ async (req: Request<getByIdParam, PostsInputModel>, res: Response<PostsViewModel
 })
   
 postsRouter.delete('/:id', 
-authorizationValidation,
-inputValidationErrors,
+  authorizationValidation,
+  inputValidationErrors,
 async (req: RequestWithParams<getByIdParam>, res: Response) => {
 const foundPost = await postsRepository.deletePost(req.params.id)
 if (!foundPost) {

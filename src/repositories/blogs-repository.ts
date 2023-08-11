@@ -1,9 +1,8 @@
-import { ObjectId, WithId } from "mongodb";
+import { ObjectId} from "mongodb";
 import { blogsCollection } from "../db/db";
 import { BlogInputModel } from "../models/blogs/blogsInputModel";
 import { BlogsMongoDbType } from '../types';
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
-import { randomUUID } from "crypto";
 
 
 
@@ -36,21 +35,22 @@ export const blogsRepository = {
         }
         
         return this._blogMapper(blogById)
-    
     },    
     
-    async createBlog(data: BlogInputModel): Promise<BlogViewModel> { 
-        const newBlog: BlogsMongoDbType = {
-            _id: new ObjectId(),
-            ...data,
-            createdAt: new Date().toISOString(),
-            isMembership: false,    
-        }
-
+    async createBlog(newBlog: BlogInputModel): Promise<BlogViewModel> { 
+        
         await blogsCollection.insertOne({...newBlog})
 
         return this._blogMapper(newBlog)
-        
+    },
+
+    async findAllPostsByBlogId(blogId: string): Promise<BlogViewModel[]> {
+        await blogsCollection.find                                             //tyt dodelat
+
+    },
+
+    async createdPostsByBlogId(blogId: string): Promise<BlogViewModel> {
+        await blogsCollection.created
     },
 
     async updateBlog(id: string, data: BlogInputModel ): Promise<boolean> {
