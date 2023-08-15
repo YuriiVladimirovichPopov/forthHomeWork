@@ -38,7 +38,7 @@ export const blogsRepository = {
         return this._blogMapper(blogById)
     },    
     
-    async createBlog(newBlog: BlogInputModel): Promise<BlogViewModel> { 
+    async createBlog(newBlog: BlogsMongoDbType): Promise<BlogViewModel> { 
         
         await blogsCollection.insertOne({...newBlog})
 

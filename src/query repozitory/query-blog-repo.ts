@@ -4,7 +4,7 @@ import { BlogInputModel } from "../models/blogs/blogsInputModel";
 import { BlogsMongoDbType } from '../types';
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
 import { PostsViewModel } from '../models/posts/postsViewModel';
-import { PaginatedType, pagination } from "../models/blogs/pagination";
+import { PaginatedType, getPaginationFromQuery } from "../models/blogs/pagination";
 import { blogsRepository } from '../repositories/blogs-repository';
 import { postsRepository } from '../repositories/posts-repository';
 
@@ -25,8 +25,8 @@ export const queryBlogRepozitory = {
 
 async findAllPostsByBlogId(
         searchNameTerm: string,  
-        pageNumber: number,
-        pageSize: number,
+        pageNumber: string,
+        pageSize: string,
         sortDirection: string,
         sortBy: string,
         blogById: string): Promise<PaginatedType | null> {
@@ -35,7 +35,7 @@ async findAllPostsByBlogId(
             return null;
         }
         const postsForSpecificBlogger = await postsRepository.findPostById(blogById)  
-        return pagination(searchNameTerm, pageNumber, pageSize, sortDirection, sortBy, postsForSpecificBlogger)                                          //tyt dodelat
+        return getPaginationFromQuery(searchNameTerm, pageNumber, pageSize, sortDirection, sortBy, postsForSpecificBlogger)                                          //tyt dodelat
 },
 
 async createdPostForSpecificBlog(blogId: string): Promise<BlogViewModel> {

@@ -1,0 +1,48 @@
+import { PostsMongoDbType } from '../types';
+import { ObjectId } from 'mongodb';
+import { PostsInputModel } from '../models/posts/postsInputModel';
+import { PostsViewModel } from '../models/posts/postsViewModel';
+import { blogsRepository } from '../repositories/blogs-repository';
+
+ 
+ 
+ export const postsRepository = {
+
+    async findAllPosts(): Promise<PostsViewModel[]> {
+        
+         return await postsRepository.findAllPosts()
+    },
+
+    async findPostById( id: string): Promise<PostsViewModel | null> {
+        
+         return await postsRepository.findPostById(id)
+    },
+ 
+    async createPost( data: PostsInputModel): Promise<PostsViewModel | null> {
+        const blog = await blogsRepository.findBlogById(data.blogId)
+
+        const newPost: PostsMongoDbType = {
+            _id: new ObjectId(data.blogId),
+            ... data,
+            blogName: blog!.name,
+            createdAt: new Date().toISOString(), 
+        }
+        const createdPost = await postsRepository.createPost({...newPost}) 
+            
+         return await createdPost
+    },
+    async updatePost(id: string, data: PostsInputModel): Promise<PostsViewModel | boolean> {
+        
+         return await postsRepository.updatePost(id, {...data})
+    },
+    async deletePost(id: string): Promise<PostsViewModel | boolean> {
+        
+         return await postsRepository.deletePost(id)
+    },
+    async deleteAllPosts(): Promise<boolean> {
+       
+          return await postsRepository.deleteAllPosts() 
+        }
+    }
+ 
+

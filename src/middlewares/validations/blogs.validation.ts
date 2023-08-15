@@ -26,5 +26,5 @@ const websiteURLValidation = body('websiteUrl')
 
 
 
-export const CreateBlogValidation = [nameValidation, descriptionValidation, websiteURLValidation, inputValidationErrors]
-export const UpdateBlogValidation = [nameValidation, descriptionValidation, websiteURLValidation, inputValidationErrors]
+export const createBlogValidation = [nameValidation, descriptionValidation, websiteURLValidation, inputValidationErrors]
+export const updateBlogValidation = [nameValidation, descriptionValidation, websiteURLValidation, inputValidationErrors]
