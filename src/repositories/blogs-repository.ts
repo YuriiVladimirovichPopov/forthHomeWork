@@ -3,6 +3,7 @@ import { blogsCollection } from "../db/db";
 import { BlogInputModel } from "../models/blogs/blogsInputModel";
 import { BlogsMongoDbType } from '../types';
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
+import { PaginationMiddleware } from "../middlewares/pagination-middleware";
 
 
 
@@ -19,7 +20,7 @@ export const blogsRepository = {
         }
     },
     
-    async findAllBlogs(): Promise<BlogViewModel[]> {
+    async findAllBlogs(pagination: PaginationMiddleware): Promise<BlogViewModel[]> {   // todo: do pagination params
         const allBlogs = await blogsCollection.find({}).toArray();
         return allBlogs.map((blog: BlogsMongoDbType) => this._blogMapper(blog))
     },
@@ -44,14 +45,7 @@ export const blogsRepository = {
         return this._blogMapper(newBlog)
     },
 
-    async findAllPostsByBlogId(blogId: string): Promise<BlogViewModel[]> {
-        await blogsCollection.find                                             //tyt dodelat
-
-    },
-
-    async createdPostsByBlogId(blogId: string): Promise<BlogViewModel> {
-        await blogsCollection.created
-    },
+    
 
     async updateBlog(id: string, data: BlogInputModel ): Promise<boolean> {
         if(!ObjectId.isValid(id)) {

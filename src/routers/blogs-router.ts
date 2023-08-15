@@ -3,11 +3,15 @@ import { blogService} from "../domain/blog-service"
 import { sendStatus } from "./send-status";
 import { authorizationValidation,
           inputValidationErrors } from "../middlewares/input-validation-middleware";
-import { CreateBlogValidation, UpdateBlogValidation } from "../middlewares/validations/blogs.validation";
+import { createBlogValidation, updateBlogValidation } from "../middlewares/validations/blogs.validation";
+import { createPostValidation } from "../middlewares/validations/posts.validation";
 import { RequestWithParams, RequestWithBody } from '../types';
 import { BlogInputModel } from "../models/blogs/blogsInputModel";
 import { getByIdParam } from "../models/getById";
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
+import { queryBlogRepozitory } from "../query repozitory/query-blog-repo";
+import { PaginationMiddleware } from "../middlewares/pagination-middleware";
+
 
 export const blogsRouter = Router({})
 
@@ -19,7 +23,7 @@ blogsRouter.get('/', async (req: Request, res: Response) => {
   
 blogsRouter.post('/',
   authorizationValidation,
-  ...CreateBlogValidation,
+  ...createBlogValidation,
   async (req: RequestWithBody<BlogViewModel>, res: Response<BlogViewModel>) => {
   
   const newBlog = await blogService.createBlog(req.body) 
@@ -28,13 +32,37 @@ blogsRouter.post('/',
 })
   
 
-blogsRouter.get('/blogs/{blogId}/posts', 
+blogsRouter.get('/blogs/{blogId}/posts', authorizationValidation, 
 
-async (req: Request, res: Response) => {   })
+async (req: Request, res: Response) => { 
 
+  const foundBlog = await blogService.findBlogById(req.params.id)
+      if (!foundBlog) {
+        res.sendStatus(sendStatus.NOT_FOUND_404)
+  }
 
-blogsRouter.post('/blogs/{blogId}/posts', 
+  const findAllPostsByBlogId = await queryBlogRepozitory.findAllPostsByBlogId(
+    req.query.pageNumber + '' || "1",
+    req.query.pageSize + '' || "10",  
+    req.query.sortDirection + '' || "asc", 
+    req.query.sortBy + '' || "createdAt",
+    req.query.blogById)   //унести все req в отдельную переменную
+  
 
+  if (findAllPostsByBlogId) {
+    res.status(sendStatus.OK_200).send(findAllPostsByBlogId)
+
+  }
+})
+
+blogsRouter.post('/blogs/{blogId}/posts', authorizationValidation,
+...createBlogValidation, ...createPostValidation,
+ try{
+
+ }
+ catch{
+
+ }
 async (req: Request, res: Response) => {   })
 
 
@@ -51,7 +79,7 @@ blogsRouter.get('/:id', async (req: RequestWithParams<getByIdParam>, res: Respon
 
 blogsRouter.put('/:id',
   authorizationValidation,
-  ...UpdateBlogValidation,
+  ...updateBlogValidation,
 async (req: Request<getByIdParam, BlogInputModel>, res: Response<BlogViewModel>) => {
   
   const updateBlog = await blogService.updateBlog(req.params.id, req.body)
