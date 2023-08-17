@@ -1,12 +1,11 @@
 import { postsCollection, blogsCollection } from '../db/db';
-import { PostsMongoDbType } from '../types';
+import { PostsMongoDbType, createPostDTOType } from '../types';
 import { ObjectId, WithId } from 'mongodb';
 import { PostsInputModel } from '../models/posts/postsInputModel';
 import { PostsViewModel } from '../models/posts/postsViewModel';
 import { blogsRepository } from './blogs-repository';
 import { randomUUID } from 'crypto';
 
- 
  
  export const postsRepository = {
 
@@ -21,33 +20,34 @@ import { randomUUID } from 'crypto';
         createdAt: post.createdAt
     }
     },
-
+    
     //10     READY
-    async findPostById( id: string): Promise<PostsViewModel | null> {
-        if (!ObjectId.isValid(id)) {
-            return null
-        }
-        const _id = new ObjectId(id)
-        const findPost = await postsCollection.findOne({_id: _id})
-            if (!findPost) {
-        return null
+    async createdPostForSpecificBlog(model: PostsInputModel): 
+    Promise<PostsViewModel | null> {
+        const blog = await blogsRepository.findBlogById(model.blogId)
+            if (!blog) {
+                return null
             }
-            return this._postMapper(findPost)
+        const createPostForBlog: PostsViewModel = {
+            id: randomUUID(),
+            title: model.title,
+            shortDescription: model.shortDescription,
+            content: model.content,
+            blogId: blog.id,
+            blogName: blog.name,
+            createdAt: new Date().toISOString()
+        }
+    await postsCollection.insertOne({
+        ...createPostForBlog,               //tyt change this 2 lines
+        _id: new ObjectId
+    })
+    return createPostForBlog
     },
  
-    //async createPost( data: PostsInputModel): Promise<PostsViewModel | null> {
-    //    const  blog = await blogsRepository.findBlogById(blogById)
-    //if(!blog) return null
-    //    const newPost = await postsCollection.insertOne({
-    //        id: randomUUID,
-    //
-    //
-    //        blogName: '',
-    //        createdAt: ''
-    //    }) 
-    //        
-    //        return this._postMapper(newPost)
-    //},
+    // async createPost(newPost:createPostDTOType): Promise<PostsMongoDbType | null> {       //TODO: create createPostDTOType
+    //     return postsCollection.insertOne(newPost)
+        
+    // },
 
     //11       READY
     async updatePost(id: string, data: PostsInputModel): Promise<PostsViewModel | boolean> {

@@ -8,7 +8,19 @@ import { PostsViewModel } from "../models/posts/postsViewModel";
 import { randomUUID } from 'crypto';
 
 
-export const queryRepozitory = {
+export const queryRepository = {
+
+    _postMapper(post: PostsMongoDbType): PostsViewModel {
+        return {
+            id: post._id.toString(),
+            title: post.title, 
+            shortDescription: post.shortDescription, 
+            content: post.content, 
+            blogId: post.blogId,
+            blogName: post.blogName,
+            createdAt: post.createdAt
+        }
+        },
 
     
     //3         READY
@@ -31,28 +43,9 @@ export const queryRepozitory = {
         }
         return response
     },
-//4           READY
-    async createdPostForSpecificBlog(title: string, shortDescription: string, content: string, blogId: string): 
-    Promise<PostsViewModel | null> {
-        const blog = await blogsRepository.findBlogById(blogId)
-            if (!blog) {
-                return null
-            }
-        const createPostForBlog: PostsViewModel = {
-            id: randomUUID(),
-            title: title,
-            shortDescription: shortDescription,
-            content: content,
-            blogId: blog.id,
-            blogName: blog.name,
-            createdAt: new Date().toISOString()
-        }
-    await postsCollection.insertOne({
-        ...createPostForBlog,               //tyt change this 2 lines
-        _id: new ObjectId
-    })
-    return createPostForBlog
-    },
+    //TODO
+//4           переносим в пост репозитори
+    
 
     //8       меняем(добавляем пагинацию)  READY
     async findAllPosts(pagination: PaginatedType):
@@ -83,5 +76,17 @@ export const queryRepozitory = {
         }))
         }
         return response
+    },
+
+    async findPostById( id: string): Promise<PostsViewModel | null> {
+        if (!ObjectId.isValid(id)) {
+            return null
+        }
+        const _id = new ObjectId(id)
+        const findPost = await postsCollection.findOne({_id: _id})
+            if (!findPost) {
+        return null
+            }
+            return this._postMapper(findPost)
     },
 }

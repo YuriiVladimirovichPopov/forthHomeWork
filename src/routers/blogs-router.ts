@@ -9,12 +9,13 @@ import { RequestWithParams, RequestWithBody, PostsMongoDbType } from '../types';
 import { BlogInputModel } from "../models/blogs/blogsInputModel";
 import { getByIdParam } from "../models/getById";
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
-import { queryRepozitory } from "../query repozitory/queryRepository";
+import { queryRepository } from "../query repozitory/queryRepository";
 import { getPaginationFromQuery } from './helpers/pagination';
 import { getSearchNameTermFromQuery } from "../middlewares/validations/searchNameTerm";
 import { PaginatedBlog } from '../models/blogs/paginatedQueryBlog';
 import { PaginatedPost } from '../models/posts/paginatedQueryPost';
 import { blogsRepository } from "../repositories/blogs-repository";
+import { postsRepository } from "../repositories/posts-repository";
 
 
 export const blogsRouter = Router({})
@@ -22,7 +23,7 @@ export const blogsRouter = Router({})
 blogsRouter.get('/', async (req: Request, res: Response): Promise<void> => {
     const pagination = getPaginationFromQuery(req.query)
     const name = getSearchNameTermFromQuery(req.query.searchNameTerm as string)
-    const allBlogs: PaginatedBlog<BlogViewModel> = await blogService.findAllBlogs({...pagination, ...name})
+    const allBlogs: PaginatedBlog<BlogViewModel[]> = await blogService.findAllBlogs({...pagination, ...name})
     
     res.status(sendStatus.OK_200).send(allBlogs);
   })
@@ -49,7 +50,7 @@ async (req: Request<{blogId: string}, {}, {}, {}>, res: Response) => {
 const pagination = getPaginationFromQuery(req.query)
   const foundBlogWithAllPosts: PaginatedPost<PostsMongoDbType> = 
   
-  await queryRepozitory.findAllPostsByBlogId(req.params.blogId, pagination) 
+  await queryRepository.findAllPostsByBlogId(req.params.blogId, pagination) 
      
     res.status(sendStatus.OK_200).send(foundBlogWithAllPosts)
 
@@ -66,12 +67,12 @@ async (req: Request, res: Response) => {
   if(!blogWithId) {
     return res.sendStatus(404)
   }
-
-  const newPostForBlogById = await queryRepozitory.createdPostForSpecificBlog(
-    req.body.title, 
-    req.body.shortDescription, 
-    req.body.content, 
-    req.params.blogId)
+  //todo create by service
+  const newPostForBlogById = await postsRepository.createdPostForSpecificBlog(
+    {title: req.body.title, 
+      shortDescription: req.body.shortDescription, 
+      content: req.body.content, 
+      blogId: req.params.blogId})
 
     if(newPostForBlogById) {
       res.status(sendStatus.CREATED_201).send(newPostForBlogById)

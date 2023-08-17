@@ -8,16 +8,17 @@ import { PostsInputModel } from "../models/posts/postsInputModel";
 import { getByIdParam } from "../models/getById";
 import { PostsViewModel } from '../models/posts/postsViewModel';
 import { postsService } from "../domain/post-service";
-import { queryRepozitory } from "../query repozitory/queryRepository";
+import { queryRepository } from "../query repozitory/queryRepository";
 import { getPaginationFromQuery } from './helpers/pagination';
 import { PaginatedPost } from '../models/posts/paginatedQueryPost';
+import { blogsRepository } from "../repositories/blogs-repository";
 
 
 export const postsRouter = Router({})
 //8        меняем(добавляем пагинацию)    доделать       SO-SO READY
 postsRouter.get('/', async (_req: Request, res: Response<PaginatedPost<PostsViewModel>>) => {
-  const pagination = getPaginationFromQuery(res.query)
-  const allPosts: PaginatedPost<PostsViewModel> = await queryRepozitory.findAllPosts(pagination)
+  const pagination = getPaginationFromQuery(_req.query)
+  const allPosts: PaginatedPost<PostsViewModel> = await queryRepository.findAllPosts(pagination)
     if (!allPosts){
       return res.status(sendStatus.NOT_FOUND_404)
     }
@@ -30,11 +31,17 @@ postsRouter.post('/',
   createPostValidation,
 async (req: RequestWithBody<PostsInputModel>, res: Response<PostsViewModel>) => {
   
-  const newPost = await postsService.createPost(req.body)
-
-  if(!newPost) return res.sendStatus(sendStatus.BAD_REQUEST_400)
+  const findBlogById =  await blogsRepository.findBlogById(req.body.blogId)
   
-  return res.status(sendStatus.CREATED_201).send(newPost)
+  if (findBlogById) {
+    const { title ,shortDescription, content, blogId} = req.body
+  const newPost: PostsViewModel | null = await postsService.createPost({title, shortDescription, content, blogId})
+  
+  if(!newPost) {
+    return res.sendStatus(sendStatus.BAD_REQUEST_400)
+  }
+    return res.status(sendStatus.CREATED_201).send(newPost)
+  }
 })
 
 //10         не меняем      READY
