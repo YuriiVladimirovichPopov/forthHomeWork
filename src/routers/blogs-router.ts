@@ -38,9 +38,9 @@ blogsRouter.post('/',
 })
   
 // 3 blogs/{blogId}/posts         меняем(добавляем пагинацию)   доделать    SO-SO READY
-blogsRouter.get('/blogs/{blogId}/posts', authorizationValidation, 
+blogsRouter.get('/blogs/:blogId/posts', authorizationValidation, 
 
-async (req: Request, res: Response) => { 
+async (req: Request<{blogId: string}, {}, {}, {}>, res: Response) => { 
 
   const blogWithPosts = await blogService.findBlogById(req.params.blogId)
   if (!blogWithPosts) {
@@ -49,14 +49,14 @@ async (req: Request, res: Response) => {
 const pagination = getPaginationFromQuery(req.query)
   const foundBlogWithAllPosts: PaginatedPost<PostsMongoDbType> = 
   
-  await queryRepozitory.findAllPostsByBlogId(req.param.blogId, pagination) 
+  await queryRepozitory.findAllPostsByBlogId(req.params.blogId, pagination) 
      
     res.status(sendStatus.OK_200).send(foundBlogWithAllPosts)
 
   
 })
-// 4 post blogs/{blogId}/posts           меняем(добавляем пагинацию)   доделать    READY
-blogsRouter.post('/blogs/{blogId}/posts', 
+// 4 post blogs/:blogId/posts           меняем(добавляем пагинацию)   доделать    READY
+blogsRouter.post('/blogs/:blogId/posts', 
 authorizationValidation,
 ...createBlogValidation, 
 ...createPostValidation,
