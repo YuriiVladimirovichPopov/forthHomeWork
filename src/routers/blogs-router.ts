@@ -5,18 +5,15 @@ import { authorizationValidation,
           inputValidationErrors } from "../middlewares/input-validation-middleware";
 import { createBlogValidation, updateBlogValidation } from "../middlewares/validations/blogs.validation";
 import { createPostValidation } from "../middlewares/validations/posts.validation";
-import { RequestWithParams, RequestWithBody, RequestWithParamsAndQuery, PostsMongoDbType } from '../types';
+import { RequestWithParams, RequestWithBody, PostsMongoDbType } from '../types';
 import { BlogInputModel } from "../models/blogs/blogsInputModel";
 import { getByIdParam } from "../models/getById";
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
 import { queryRepozitory } from "../query repozitory/queryRepository";
-import { ObjectId } from "mongodb";
-import { PostsInputModel } from "../models/posts/postsInputModel";
-import { getPaginationFromQuery, PaginatedType } from './helpers/pagination';
+import { getPaginationFromQuery } from './helpers/pagination';
 import { getSearchNameTermFromQuery } from "../middlewares/validations/searchNameTerm";
 import { PaginatedBlog } from '../models/blogs/paginatedQueryBlog';
 import { PaginatedPost } from '../models/posts/paginatedQueryPost';
-import { PostsViewModel } from "../models/posts/postsViewModel";
 import { blogsRepository } from "../repositories/blogs-repository";
 
 

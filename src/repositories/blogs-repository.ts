@@ -23,7 +23,7 @@ export const blogsRepository = {
     //1      меняем(добавляем пагинацию)
     async findAllBlogs(pagination: PaginatedType): Promise<PaginatedBlog<BlogViewModel>> {
         const filter = {name: {$regex: pagination.searchNameTerm, $options: '1'}}
-        const result: WithId<WithId<BlogsMongoDbType>>[] =
+        const result: WithId<WithId<BlogViewModel>>[] =
         await blogsCollection.find(filter, {projection: {_id: 0}}) 
             
           .sort({[pagination.sortBy]: pagination.sortDirection})
