@@ -1,7 +1,7 @@
 import { ObjectId, WithId} from "mongodb";
 import { blogsCollection } from "../db/db";
 import { BlogInputModel } from "../models/blogs/blogsInputModel";
-import { BlogsMongoDbType } from '../types';
+import { BlogsMongoDbType, RequestWithBody } from '../types';
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
 import { PaginatedType } from "../routers/helpers/pagination";
 import { PaginatedBlog } from '../models/blogs/paginatedQueryBlog';
@@ -23,7 +23,7 @@ export const blogsRepository = {
     //1      меняем(добавляем пагинацию)
     async findAllBlogs(pagination: PaginatedType): Promise<PaginatedBlog<BlogViewModel>> {
         const filter = {name: {$regex: pagination.searchNameTerm, $options: '1'}}
-        const result: WithId<WithId<BlogViewModel>>[] =
+        const result: WithId<BlogsMongoDbType>[] =
         await blogsCollection.find(filter, {projection: {_id: 0}}) 
             
           .sort({[pagination.sortBy]: pagination.sortDirection})
@@ -39,7 +39,7 @@ export const blogsRepository = {
             page: pagination.pageNumber,
             pageSize: pagination.pageSize,
             totalCount: totalCount,
-            items: result
+            items: result.map((r) => ({_blogMapper}))
           }
           return res
     },
@@ -94,4 +94,8 @@ export const blogsRepository = {
             return false
         }
     }
+}
+
+function _blogMapper(): any {
+    throw new Error("Function not implemented.");
 }

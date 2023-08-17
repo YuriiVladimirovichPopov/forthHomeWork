@@ -2,7 +2,7 @@ import { postsCollection } from '../db/db';
 import { PostsMongoDbType } from '../types';
 import { PaginatedType } from "../routers/helpers/pagination";
 import { blogsRepository } from '../repositories/blogs-repository';
-import { WithId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
 import { PaginatedPost } from '../models/posts/paginatedQueryPost';
 import { PostsViewModel } from "../models/posts/postsViewModel";
 import { randomUUID } from 'crypto';
@@ -47,13 +47,16 @@ export const queryRepozitory = {
             blogName: blog.name,
             createdAt: new Date().toISOString()
         }
-    await postsCollection.insertOne({...createPostForBlog})
+    await postsCollection.insertOne({
+        ...createPostForBlog,               //tyt change this 2 lines
+        _id: new ObjectId
+    })
     return createPostForBlog
     },
 
     //8       меняем(добавляем пагинацию)  READY
     async findAllPosts(pagination: PaginatedType):
-     Promise<PaginatedPost<WithId<PostsMongoDbType>>> {
+     Promise<PaginatedPost<PostsViewModel>> {
         const result : WithId<PostsMongoDbType>[] = await postsCollection.find({}, {projection: {_id: 0}})
     .sort({[pagination.sortBy]: pagination.sortDirection })
     .skip(pagination.skip)
@@ -64,12 +67,12 @@ export const queryRepozitory = {
         const pageCount: number = Math.ceil(totalCount / pagination.pageSize)
 
 
-    const response: PaginatedPost<PostsMongoDbType> = {
+    const response: PaginatedPost<PostsViewModel> = {
         pagesCount: pageCount,
         page: pagination.pageNumber,
         pageSize: pagination.pageSize,
         totalCount: totalCount,
-        items: result
+        items: result.map(() => ({}))
         }
         return response
     },
