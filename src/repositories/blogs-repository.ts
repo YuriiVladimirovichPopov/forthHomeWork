@@ -1,10 +1,10 @@
-import { ObjectId} from "mongodb";
+import { ObjectId, WithId} from "mongodb";
 import { blogsCollection } from "../db/db";
 import { BlogInputModel } from "../models/blogs/blogsInputModel";
 import { BlogsMongoDbType } from '../types';
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
-import { PaginationMiddleware } from "../middlewares/pagination-middleware";
-
+import { PaginatedType } from "../routers/helpers/pagination";
+import { PaginatedBlog } from '../models/blogs/paginatedQueryBlog';
 
 
 export const blogsRepository = {
@@ -19,12 +19,32 @@ export const blogsRepository = {
             isMembership: blog.isMembership
         }
     },
+
+    //1      меняем(добавляем пагинацию)
+    async findAllBlogs(pagination: PaginatedType): Promise<PaginatedBlog<BlogViewModel>> {
+        const filter = {name: {$regex: pagination.searchNameTerm, $options: '1'}}
+        const result: WithId<WithId<BlogsMongoDbType>>[] =
+        await blogsCollection.find(filter, {projection: {_id: 0}}) 
+            
+          .sort({[pagination.sortBy]: pagination.sortDirection})
+          .skip(pagination.skip)
+          .limit(pagination.pageSize)
+          .toArray()
+          
+          const totalCount: number = await blogsCollection.countDocuments(filter)
+          const pageCount: number = Math.ceil(totalCount / pagination.pageSize)
     
-    async findAllBlogs(pagination: PaginationMiddleware): Promise<BlogViewModel[]> {   // todo: do pagination params
-        const allBlogs = await blogsCollection.find({}).toArray();
-        return allBlogs.map((blog: BlogsMongoDbType) => this._blogMapper(blog))
+          const res: PaginatedBlog<BlogViewModel> = {
+            pagesCount: pageCount,
+            page: pagination.pageNumber,
+            pageSize: pagination.pageSize,
+            totalCount: totalCount,
+            items: result
+          }
+          return res
     },
 
+    //5        не меняем
     async findBlogById(id: string):Promise<BlogViewModel | null> {
         if (!ObjectId.isValid(id)) {
             return null
@@ -37,7 +57,7 @@ export const blogsRepository = {
         
         return this._blogMapper(blogById)
     },    
-    
+    //2
     async createBlog(newBlog: BlogsMongoDbType): Promise<BlogViewModel> { 
         
         await blogsCollection.insertOne({...newBlog})
@@ -45,8 +65,7 @@ export const blogsRepository = {
         return this._blogMapper(newBlog)
     },
 
-    
-
+    //6        не меняем
     async updateBlog(id: string, data: BlogInputModel ): Promise<boolean> {
         if(!ObjectId.isValid(id)) {
             return false
@@ -56,6 +75,7 @@ export const blogsRepository = {
         return foundBlogById.matchedCount === 1
     },
     
+    //7         не меняем
     async deleteBlog(id: string): Promise<boolean> {
         if (!ObjectId.isValid(id)) {
             return false
@@ -66,7 +86,6 @@ export const blogsRepository = {
         return foundBlogById.deletedCount === 1
     }, 
     
-
     async deleteAllBlogs(): Promise<boolean> {
         try {
             const result = await blogsCollection.deleteMany({});

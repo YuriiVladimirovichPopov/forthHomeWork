@@ -5,24 +5,31 @@ import { authorizationValidation,
           inputValidationErrors } from "../middlewares/input-validation-middleware";
 import { createBlogValidation, updateBlogValidation } from "../middlewares/validations/blogs.validation";
 import { createPostValidation } from "../middlewares/validations/posts.validation";
-import { RequestWithParams, RequestWithBody } from '../types';
+import { RequestWithParams, RequestWithBody, RequestWithParamsAndQuery, PostsMongoDbType } from '../types';
 import { BlogInputModel } from "../models/blogs/blogsInputModel";
 import { getByIdParam } from "../models/getById";
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
-import { queryBlogRepozitory } from "../query repozitory/query-blog-repo";
-import { PaginationMiddleware } from "../middlewares/pagination-middleware";
-import { blogsCollection } from '../db/db';
-import { PaginatedType } from '../models/blogs/pagination';
+import { queryRepozitory } from "../query repozitory/queryRepository";
+import { ObjectId } from "mongodb";
+import { PostsInputModel } from "../models/posts/postsInputModel";
+import { getPaginationFromQuery, PaginatedType } from './helpers/pagination';
+import { getSearchNameTermFromQuery } from "../middlewares/validations/searchNameTerm";
+import { PaginatedBlog } from '../models/blogs/paginatedQueryBlog';
+import { PaginatedPost } from '../models/posts/paginatedQueryPost';
+import { PostsViewModel } from "../models/posts/postsViewModel";
+import { blogsRepository } from "../repositories/blogs-repository";
 
 
 export const blogsRouter = Router({})
-
-blogsRouter.get('/', async (req: Request, res: Response) => {
-    const allBlogs = await blogService.findAllBlogs(req.query.PaginatedType)
+//1 get/blogs         меняем(добавляем пагинацию)    доделать
+blogsRouter.get('/', async (req: Request, res: Response): Promise<void> => {
+    const pagination = getPaginationFromQuery(req.query)
+    const name = getSearchNameTermFromQuery(req.query.searchNameTerm as string)
+    const allBlogs: PaginatedBlog<BlogViewModel> = await blogService.findAllBlogs({...pagination, ...name})
     
     res.status(sendStatus.OK_200).send(allBlogs);
   })
-  
+// 2 post/blogs          не меняем
 blogsRouter.post('/',
   authorizationValidation,
   ...createBlogValidation,
@@ -33,43 +40,49 @@ blogsRouter.post('/',
   res.status(sendStatus.CREATED_201).send(newBlog)
 })
   
-
+// 3 blogs/{blogId}/posts         меняем(добавляем пагинацию)   доделать    SO-SO READY
 blogsRouter.get('/blogs/{blogId}/posts', authorizationValidation, 
 
 async (req: Request, res: Response) => { 
 
-  const foundBlog = await queryBlogRepozitory.findAllPostsByBlogId() //blogService.findBlogById(req.params.id)
-      if (!foundBlog) {
-        res.sendStatus(sendStatus.NOT_FOUND_404)
-  }
-
-  const findAllPostsByBlogId = await queryBlogRepozitory.findAllPostsByBlogId(
-    req.params.blogId,
-    req.query.pageNumber + '' || "1",
-    req.query.pageSize + '' || "10",  
-    req.query.sortDirection + '' || "asc", 
-    req.query.sortBy + '' || "createdAt",
-    req.query.searchNameTerm)   //унести все req в отдельную переменную
+  const blogWithPosts = await blogService.findBlogById(req.params.blogId)
+  if (!blogWithPosts) {
+    res.sendStatus(sendStatus.NOT_FOUND_404)
+}
+const pagination = getPaginationFromQuery(req.query)
+  const foundBlogWithAllPosts: PaginatedPost<PostsMongoDbType> = 
   
+  await queryRepozitory.findAllPostsByBlogId(req.param.blogId, pagination) 
+     
+    res.status(sendStatus.OK_200).send(foundBlogWithAllPosts)
 
-  if (findAllPostsByBlogId) {
-    res.status(sendStatus.OK_200).send(findAllPostsByBlogId)
-
-  }
+  
 })
+// 4 post blogs/{blogId}/posts           меняем(добавляем пагинацию)   доделать    READY
+blogsRouter.post('/blogs/{blogId}/posts', 
+authorizationValidation,
+...createBlogValidation, 
+...createPostValidation,
+ 
+async (req: Request, res: Response) => {
+  const blogWithId: BlogViewModel| null = await blogsRepository.findBlogById(req.params.blogId) 
+  if(!blogWithId) {
+    return res.sendStatus(404)
+  }
 
-blogsRouter.post('/blogs/{blogId}/posts', authorizationValidation,
-...createBlogValidation, ...createPostValidation,
- try{
+  const newPostForBlogById = await queryRepozitory.createdPostForSpecificBlog(
+    req.body.title, 
+    req.body.shortDescription, 
+    req.body.content, 
+    req.params.blogId)
 
- }
- catch{
-
- }
-async (req: Request, res: Response) => {   }
+    if(newPostForBlogById) {
+      res.status(sendStatus.CREATED_201).send(newPostForBlogById)
+    }
+   }
 )
 
-
+// 5 get/blogs/:id       не меняем
 blogsRouter.get('/:id', async (req: RequestWithParams<getByIdParam>, res: Response<BlogViewModel>) => {
     const foundBlog = await blogService.findBlogById(req.params.id)
     if (foundBlog) {
@@ -79,8 +92,7 @@ blogsRouter.get('/:id', async (req: RequestWithParams<getByIdParam>, res: Respon
     }
   })
 
-
-
+// 6 put/blogs/:id        не меняем
 blogsRouter.put('/:id',
   authorizationValidation,
   ...updateBlogValidation,
@@ -92,7 +104,8 @@ async (req: Request<getByIdParam, BlogInputModel>, res: Response<BlogViewModel>)
     }
     res.sendStatus(sendStatus.NO_CONTENT_204)
 })
-  
+
+// 7 delete/blogs/:id       не меняем
 blogsRouter.delete('/:id', 
   authorizationValidation,
   inputValidationErrors, 
@@ -103,3 +116,7 @@ async (req: RequestWithParams<getByIdParam>, res: Response) => {
   }
   res.sendStatus(sendStatus.NO_CONTENT_204)
 })
+
+function RouterPath(arg0: {}) {
+  throw new Error("Function not implemented.");
+}

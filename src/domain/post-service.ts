@@ -3,10 +3,11 @@ import { ObjectId } from 'mongodb';
 import { PostsInputModel } from '../models/posts/postsInputModel';
 import { PostsViewModel } from '../models/posts/postsViewModel';
 import { blogsRepository } from '../repositories/blogs-repository';
+import { postsRepository } from '../repositories/posts-repository';
 
  
  
- export const postsRepository = {
+ export const postsService = {
 
     async findAllPosts(): Promise<PostsViewModel[]> {
         
@@ -20,16 +21,17 @@ import { blogsRepository } from '../repositories/blogs-repository';
  
     async createPost( data: PostsInputModel): Promise<PostsViewModel | null> {
         const blog = await blogsRepository.findBlogById(data.blogId)
+        if(!blog) return null
 
         const newPost: PostsMongoDbType = {
             _id: new ObjectId(data.blogId),
             ... data,
-            blogName: blog!.name,
+            blogName: blog.name,
             createdAt: new Date().toISOString(), 
         }
         const createdPost = await postsRepository.createPost({...newPost}) 
             
-         return await createdPost
+         return createdPost
     },
     async updatePost(id: string, data: PostsInputModel): Promise<PostsViewModel | boolean> {
         

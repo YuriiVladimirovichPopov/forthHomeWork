@@ -3,14 +3,14 @@ import { BlogInputModel } from "../models/blogs/blogsInputModel";
 import { BlogsMongoDbType } from '../types';
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
 import { blogsRepository } from "../repositories/blogs-repository";
-import { PaginationMiddleware } from '../middlewares/pagination-middleware';
+
 
 
 export const blogService = {
     
-    async findAllBlogs(pagination: PaginationMiddleware): Promise<BlogViewModel[]> {
+    async findAllBlogs(title: string | null | undefined): Promise<BlogViewModel[]> {
         
-        return await blogsRepository.findAllBlogs(pagination)
+        return await blogsRepository.findAllBlogs(title)
     },
 
     async findBlogById(id: string):Promise<BlogViewModel | null> {
