@@ -38,7 +38,7 @@ import { randomUUID } from 'crypto';
             createdAt: new Date().toISOString()
         }
     await postsCollection.insertOne({
-        ...createPostForBlog,               //tyt change this 2 lines
+        ...createPostForBlog,
         _id: new ObjectId
     })
     return createPostForBlog
