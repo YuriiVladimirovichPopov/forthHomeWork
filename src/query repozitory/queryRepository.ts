@@ -72,13 +72,16 @@ export const queryRepozitory = {
         page: pagination.pageNumber,
         pageSize: pagination.pageSize,
         totalCount: totalCount,
-        items: result.map(() => ({}))
+        items: result.map(r => ({
+            id: r._id.toString(),
+            title: r.title,
+            shortDescription: r.shortDescription,
+            content: r.content,
+            blogId: r.blogId,
+            blogName: r.blogName,
+            createdAt: r.createdAt
+        }))
         }
         return response
     },
-
-
-
-    
-
 }

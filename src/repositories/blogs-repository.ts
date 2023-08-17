@@ -21,7 +21,7 @@ export const blogsRepository = {
     },
 
     //1      меняем(добавляем пагинацию)
-    async findAllBlogs(pagination: PaginatedType): Promise<PaginatedBlog<BlogViewModel>> {
+    async findAllBlogs(pagination: PaginatedType): Promise<PaginatedBlog<BlogViewModel[]>> {
         const filter = {name: {$regex: pagination.searchNameTerm, $options: '1'}}
         const result: WithId<BlogsMongoDbType>[] =
         await blogsCollection.find(filter, {projection: {_id: 0}}) 
@@ -34,12 +34,19 @@ export const blogsRepository = {
           const totalCount: number = await blogsCollection.countDocuments(filter)
           const pageCount: number = Math.ceil(totalCount / pagination.pageSize)
     
-          const res: PaginatedBlog<BlogViewModel> = {
+          const res: PaginatedBlog<BlogViewModel[]> = {
             pagesCount: pageCount,
             page: pagination.pageNumber,
             pageSize: pagination.pageSize,
             totalCount: totalCount,
-            items: result.map((r) => ({_blogMapper}))
+            items: result.map(b => ({
+                    id: b._id.toString(),
+                    name: b.name,
+                    description: b.description,
+                    websiteUrl: b.websiteUrl,
+                    createdAt: b.createdAt,
+                    isMembership: b.isMembership
+            }))
           }
           return res
     },
