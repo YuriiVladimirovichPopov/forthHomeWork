@@ -1,11 +1,9 @@
 import { postsCollection } from '../db/db';
 import { PostsMongoDbType } from '../types';
 import { PaginatedType } from "../routers/helpers/pagination";
-import { blogsRepository } from '../repositories/blogs-repository';
-import { ObjectId, WithId } from 'mongodb';
+import { ObjectId, WithId, Filter } from 'mongodb';
 import { PaginatedPost } from '../models/posts/paginatedQueryPost';
 import { PostsViewModel } from "../models/posts/postsViewModel";
-import { randomUUID } from 'crypto';
 
 
 export const queryRepository = {
@@ -24,24 +22,9 @@ export const queryRepository = {
 
     
     //3         READY
-    async findAllPostsByBlogId(blogId: string, pagination: PaginatedType): Promise<PaginatedPost<PostsMongoDbType>> {    //change to PostsMongoDbType(been PostViewModel)
-        const result: WithId<WithId<PostsMongoDbType>>[] = await postsCollection.find({blogId}, {projection: {_id: 0}})
-            .sort({[pagination.sortBy] : pagination.sortDirection})
-            .skip(pagination.skip)
-            .limit(pagination.pageSize)
-            .toArray()
-
-        const totalCount: number = await postsCollection.countDocuments({blogId})
-        const pageCount: number = Math.ceil(totalCount / pagination.pageSize)
-
-        const response: PaginatedPost<PostsMongoDbType> = {
-            pagesCount: pageCount,
-            page: pagination.pageNumber,
-            pageSize: pagination.pageSize,
-            totalCount: totalCount,
-            items: result
-        }
-        return response
+    async findAllPostsByBlogId(blogId: string, pagination: PaginatedType): Promise<PaginatedPost<PostsViewModel>> {    //change to PostsMongoDbType(been PostViewModel)
+        const filter = {blogId}
+        return this._findPostsByFilter(filter, pagination)
     },
     //TODO
 //4           переносим в пост репозитори
@@ -50,32 +33,29 @@ export const queryRepository = {
     //8       меняем(добавляем пагинацию)  READY
     async findAllPosts(pagination: PaginatedType):
      Promise<PaginatedPost<PostsViewModel>> {
-        const result : WithId<PostsMongoDbType>[] = await postsCollection.find({}, {projection: {_id: 0}})
-    .sort({[pagination.sortBy]: pagination.sortDirection })
-    .skip(pagination.skip)
-    .limit(pagination.pageSize)
-    .toArray()
+        const filter = {}
+        return this._findPostsByFilter(filter, pagination)
+    },
 
-        const totalCount: number = await postsCollection.countDocuments({})
+
+    async _findPostsByFilter(filter: Filter<PostsMongoDbType>, pagination: PaginatedType): Promise<PaginatedPost<PostsViewModel>> {
+        const result : WithId<PostsMongoDbType>[] = await postsCollection.find({filter})
+                    .sort({[pagination.sortBy]: pagination.sortDirection })
+                    .skip(pagination.skip)
+                    .limit(pagination.pageSize)
+                    .toArray()
+
+        const totalCount: number = await postsCollection.countDocuments(filter)
         const pageCount: number = Math.ceil(totalCount / pagination.pageSize)
 
 
-    const response: PaginatedPost<PostsViewModel> = {
+    return {
         pagesCount: pageCount,
         page: pagination.pageNumber,
         pageSize: pagination.pageSize,
         totalCount: totalCount,
-        items: result.map(r => ({
-            id: r._id.toString(),
-            title: r.title,
-            shortDescription: r.shortDescription,
-            content: r.content,
-            blogId: r.blogId,
-            blogName: r.blogName,
-            createdAt: r.createdAt
-        }))
-        }
-        return response
+        items: result.map(res => this._postMapper(res))
+    }
     },
 
     async findPostById( id: string): Promise<PostsViewModel | null> {
