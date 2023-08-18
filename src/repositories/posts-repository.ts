@@ -28,8 +28,8 @@ import { randomUUID } from 'crypto';
             if (!blog) {
                 return null
             }
-        const createPostForBlog: PostsViewModel = {
-            id: randomUUID(),
+        const createPostForBlog: PostsMongoDbType = {
+            _id: new ObjectId(),
             title: model.title,
             shortDescription: model.shortDescription,
             content: model.content,
@@ -37,11 +37,8 @@ import { randomUUID } from 'crypto';
             blogName: blog.name,
             createdAt: new Date().toISOString()
         }
-    await postsCollection.insertOne({
-        ...createPostForBlog,
-        _id: new ObjectId
-    })
-    return createPostForBlog
+    await postsCollection.insertOne(createPostForBlog)
+    return this._postMapper(createPostForBlog)
     },
  
     // async createPost(newPost:createPostDTOType): Promise<PostsMongoDbType | null> {       //TODO: create createPostDTOType
