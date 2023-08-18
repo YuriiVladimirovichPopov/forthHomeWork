@@ -16,8 +16,8 @@ import { blogsRepository } from "../repositories/blogs-repository";
 
 export const postsRouter = Router({})
 //8        меняем(добавляем пагинацию)    доделать       SO-SO READY
-postsRouter.get('/', async (_req: Request, res: Response<PaginatedPost<PostsViewModel>>) => {
-  const pagination = getPaginationFromQuery(_req.query)
+postsRouter.get('/', async (req: Request, res: Response<PaginatedPost<PostsViewModel>>) => {
+  const pagination = getPaginationFromQuery(req.query)
   const allPosts: PaginatedPost<PostsViewModel> = await queryRepository.findAllPosts(pagination)
     if (!allPosts){
       return res.status(sendStatus.NOT_FOUND_404)

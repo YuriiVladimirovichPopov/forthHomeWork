@@ -22,12 +22,12 @@ import { postsService } from "../domain/post-service";
 
 export const blogsRouter = Router({})
 //1 get/blogs         меняем(добавляем пагинацию)    доделать
-blogsRouter.get('/', async (req: Request, res: Response): Promise<void> => {
+blogsRouter.get('/', async (req: Request, res: Response) => {
     const pagination = getPaginationFromQuery(req.query)
     const name = getSearchNameTermFromQuery(req.query.searchNameTerm as string)
     const allBlogs: PaginatedBlog<BlogViewModel[]> = await blogService.findAllBlogs({...pagination, ...name})
     
-    res.status(sendStatus.OK_200).send(allBlogs);
+    return res.status(sendStatus.OK_200).send(allBlogs);
   })
 // 2 post/blogs          не меняем
 blogsRouter.post('/',
@@ -37,7 +37,7 @@ blogsRouter.post('/',
   
   const newBlog = await blogService.createBlog(req.body) 
   
-  res.status(sendStatus.CREATED_201).send(newBlog)
+  return res.status(sendStatus.CREATED_201).send(newBlog)
 })
   
 // 3 blogs/{blogId}/posts         меняем(добавляем пагинацию)   доделать    SO-SO READY
@@ -54,10 +54,9 @@ const pagination = getPaginationFromQuery(req.query)
   
   await queryRepository.findAllPostsByBlogId(req.params.blogId, pagination) 
      
-    res.status(sendStatus.OK_200).send(foundBlogWithAllPosts)
-
-  
+  return res.status(sendStatus.OK_200).send(foundBlogWithAllPosts)
 })
+
 // 4 post blogs/:blogId/posts           меняем(добавляем пагинацию)   доделать    READY
 blogsRouter.post('/:blogId/posts', 
 authorizationValidation,
@@ -66,25 +65,17 @@ createPostValidationForBlogRouter,
 async (req: Request, res: Response) => {
   
   const blogId = req.params.blogId;
-  //const blogWithId: BlogViewModel| null = await blogsRepository.findBlogById(blogId);
-  //if(!blogWithId) {
- // //  return 
-  //}
+  
   const {title, shortDescription, content} = req.body;
   //todo create by service
   const newPostForBlogById: PostsInputModel | null = await postsService.createPost(
-      {title, 
-      shortDescription, 
-      content, 
-      blogId})
+      {title, shortDescription, content, blogId})
 
     if(newPostForBlogById) {
       return res.status(sendStatus.CREATED_201).send(newPostForBlogById);
     }
-
-    return res.sendStatus(404)
-   }
-)
+      return res.sendStatus(404)
+   })
 
 // 5 get/blogs/:id       не меняем
 blogsRouter.get('/:id', async (req: RequestWithParams<getByIdParam>, res: Response<BlogViewModel>) => {
@@ -107,7 +98,7 @@ async (req: Request<getByIdParam, BlogInputModel>, res: Response<BlogViewModel>)
     if (!updateBlog) {
       return res.sendStatus(sendStatus.NOT_FOUND_404)
     }
-    res.sendStatus(sendStatus.NO_CONTENT_204)
+      return res.sendStatus(sendStatus.NO_CONTENT_204)
 })
 
 // 7 delete/blogs/:id       не меняем
@@ -119,7 +110,7 @@ async (req: RequestWithParams<getByIdParam>, res: Response) => {
   if (!foundBlog) {
     return res.sendStatus(sendStatus.NOT_FOUND_404)
   }
-  res.sendStatus(sendStatus.NO_CONTENT_204)
+  return res.sendStatus(sendStatus.NO_CONTENT_204)
 })
 
 //function RouterPath(arg0: {}) {
