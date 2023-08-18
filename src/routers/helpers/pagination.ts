@@ -13,9 +13,10 @@ export type PaginatedType = {
 export const getPaginationFromQuery = (query: any): PaginatedType => {
 
     const defaultValues: PaginatedType = {
+        searchNameTerm: '',
         pageNumber: 1, 
         pageSize: 10, 
-        sortDirection: 'asc',
+        sortDirection: 'desc',
         sortBy: 'createdAt',
         skip: 0
     }
@@ -27,14 +28,17 @@ export const getPaginationFromQuery = (query: any): PaginatedType => {
              defaultValues.sortDirection = query.sortDirection 
         }
     
-        if(query.pageNumber  && query.pageNumber > 0) {
-             defaultValues.pageNumber = +query.pageNumber 
+        if(query.pageNumber  && !isNaN(parseInt(query.pageNumber, 10)) && parseInt(query.pageNumber, 10) > 0) {
+             defaultValues.pageNumber = parseInt(query.pageNumber, 10)
         } 
     
-        if (query.pageSize && query.pageSize > 0) {
-             defaultValues.pageSize = +query.pageSize 
+        if(query.pageSize  && !isNaN(parseInt(query.pageSize, 10)) && parseInt(query.pageSize, 10) > 0) {
+            defaultValues.pageSize = parseInt(query.pageSize, 10)
+       } 
+           
+        if(query.searchNameTerm) {
+            defaultValues.searchNameTerm = query.searchNameTerm
         }
-            
     defaultValues.skip = (defaultValues.pageNumber - 1) * defaultValues.pageSize
 
     return defaultValues

@@ -11,11 +11,8 @@ import { getByIdParam } from "../models/getById";
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
 import { queryRepository } from "../query repozitory/queryRepository";
 import { getPaginationFromQuery } from './helpers/pagination';
-import { getSearchNameTermFromQuery } from "../middlewares/validations/searchNameTerm";
 import { PaginatedBlog } from '../models/blogs/paginatedQueryBlog';
 import { PaginatedPost } from '../models/posts/paginatedQueryPost';
-import { blogsRepository } from "../repositories/blogs-repository";
-import { postsRepository } from "../repositories/posts-repository";
 import { PostsInputModel } from '../models/posts/postsInputModel';
 import { postsService } from "../domain/post-service";
 import { PostsViewModel } from "../models/posts/postsViewModel";
@@ -25,8 +22,7 @@ export const blogsRouter = Router({})
 //1 get/blogs         меняем(добавляем пагинацию)    доделать
 blogsRouter.get('/', async (req: Request, res: Response) => {
     const pagination = getPaginationFromQuery(req.query)
-    const name = getSearchNameTermFromQuery(req.query.searchNameTerm as string)
-    const allBlogs: PaginatedBlog<BlogViewModel[]> = await blogService.findAllBlogs({...pagination, ...name})
+    const allBlogs: PaginatedBlog<BlogViewModel[]> = await blogService.findAllBlogs(pagination)
     
     return res.status(sendStatus.OK_200).send(allBlogs);
   })
@@ -35,9 +31,7 @@ blogsRouter.post('/',
   authorizationValidation,
   ...createBlogValidation,
   async (req: RequestWithBody<BlogViewModel>, res: Response<BlogViewModel>) => {
-  console.log('roter before query')
   const newBlog = await blogService.createBlog(req.body) 
-  console.log('router after q')
   return res.status(sendStatus.CREATED_201).send(newBlog)
 })
   
@@ -47,9 +41,9 @@ blogsRouter.get('/:blogId/posts',
 async (req: Request<{blogId: string}, {}, {}, {}>, res: Response) => { 
   const blogWithPosts = await blogService.findBlogById(req.params.blogId)
   if (!blogWithPosts) {
-    res.sendStatus(sendStatus.NOT_FOUND_404)
-}
-const pagination = getPaginationFromQuery(req.query)
+    return res.sendStatus(sendStatus.NOT_FOUND_404)
+  }
+  const pagination = getPaginationFromQuery(req.query)
   const foundBlogWithAllPosts: PaginatedPost<PostsViewModel> = 
   
   await queryRepository.findAllPostsByBlogId(req.params.blogId, pagination) 

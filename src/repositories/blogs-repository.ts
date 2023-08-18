@@ -22,7 +22,7 @@ export const blogsRepository = {
 
     //1      меняем(добавляем пагинацию)
     async findAllBlogs(pagination: PaginatedType): Promise<PaginatedBlog<BlogViewModel[]>> {
-        const filter = {name: {$regex: pagination.searchNameTerm, $options: '1'}}
+        const filter = {name: {$regex: pagination.searchNameTerm, $options: 'i'}} //todo regex docs
         const result: WithId<BlogsMongoDbType>[] =
         await blogsCollection.find(filter) 
             
@@ -54,9 +54,7 @@ export const blogsRepository = {
     },    
     //2
     async createBlog(newBlog: BlogsMongoDbType): Promise<BlogViewModel> { 
-        
-        await blogsCollection.insertOne({...newBlog})
-
+        await blogsCollection.insertOne(newBlog)
         return this._blogMapper(newBlog)
     },
 

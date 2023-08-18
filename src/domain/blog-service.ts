@@ -23,6 +23,7 @@ export const blogService = {
     },    
     
     async createBlog(data: BlogInputModel): Promise<BlogViewModel> { 
+        
         const newBlog: BlogsMongoDbType = {
             _id: new ObjectId(),
             ...data,
@@ -30,7 +31,7 @@ export const blogService = {
             isMembership: false,    
         }
 
-        const createdBlog = await blogsRepository.createBlog({...newBlog})
+        const createdBlog = await blogsRepository.createBlog(newBlog)
 
         return createdBlog
     },

@@ -39,7 +39,7 @@ export const queryRepository = {
 
 
     async _findPostsByFilter(filter: Filter<PostsMongoDbType>, pagination: PaginatedType): Promise<PaginatedPost<PostsViewModel>> {
-        const result : WithId<PostsMongoDbType>[] = await postsCollection.find({filter})
+        const result : WithId<PostsMongoDbType>[] = await postsCollection.find(filter)
                     .sort({[pagination.sortBy]: pagination.sortDirection })
                     .skip(pagination.skip)
                     .limit(pagination.pageSize)
