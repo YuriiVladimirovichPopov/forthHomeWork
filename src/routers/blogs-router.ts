@@ -69,7 +69,7 @@ async (req: Request, res: Response) => {
   
   const {title, shortDescription, content} = req.body;
   //todo create by service
-  const newPostForBlogById: PostsViewModel | null = await postsService.createPost(
+  const newPostForBlogById: PostsInputModel | null = await postsService.createPost(
       {title, shortDescription, content, blogId})
 
     if(newPostForBlogById) {
