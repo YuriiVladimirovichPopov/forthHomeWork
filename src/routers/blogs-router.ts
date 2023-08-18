@@ -4,7 +4,7 @@ import { sendStatus } from "./send-status";
 import { authorizationValidation,
           inputValidationErrors } from "../middlewares/input-validation-middleware";
 import { createBlogValidation, updateBlogValidation } from "../middlewares/validations/blogs.validation";
-import { createPostValidation } from "../middlewares/validations/posts.validation";
+import { createPostValidation, createPostValidationForBlogRouter } from "../middlewares/validations/posts.validation";
 import { RequestWithParams, RequestWithBody, PostsMongoDbType } from '../types';
 import { BlogInputModel } from "../models/blogs/blogsInputModel";
 import { getByIdParam } from "../models/getById";
@@ -16,6 +16,8 @@ import { PaginatedBlog } from '../models/blogs/paginatedQueryBlog';
 import { PaginatedPost } from '../models/posts/paginatedQueryPost';
 import { blogsRepository } from "../repositories/blogs-repository";
 import { postsRepository } from "../repositories/posts-repository";
+import { PostsInputModel } from '../models/posts/postsInputModel';
+import { postsService } from "../domain/post-service";
 
 
 export const blogsRouter = Router({})
@@ -57,26 +59,30 @@ const pagination = getPaginationFromQuery(req.query)
   
 })
 // 4 post blogs/:blogId/posts           меняем(добавляем пагинацию)   доделать    READY
-blogsRouter.post('/blogs/:blogId/posts', 
+blogsRouter.post('/:blogId/posts', 
 authorizationValidation,
-...createBlogValidation, 
-...createPostValidation,
+createPostValidationForBlogRouter,
  
 async (req: Request, res: Response) => {
-  const blogWithId: BlogViewModel| null = await blogsRepository.findBlogById(req.params.blogId) 
-  if(!blogWithId) {
-    return res.sendStatus(404)
-  }
+  
+  const blogId = req.params.blogId;
+  //const blogWithId: BlogViewModel| null = await blogsRepository.findBlogById(blogId);
+  //if(!blogWithId) {
+ // //  return 
+  //}
+  const {title, shortDescription, content} = req.body;
   //todo create by service
-  const newPostForBlogById = await postsRepository.createdPostForSpecificBlog(
-    {title: req.body.title, 
-      shortDescription: req.body.shortDescription, 
-      content: req.body.content, 
-      blogId: req.params.blogId})
+  const newPostForBlogById: PostsInputModel | null = await postsService.createPost(
+      {title, 
+      shortDescription, 
+      content, 
+      blogId})
 
     if(newPostForBlogById) {
-      res.status(sendStatus.CREATED_201).send(newPostForBlogById)
+      return res.status(sendStatus.CREATED_201).send(newPostForBlogById);
     }
+
+    return res.sendStatus(404)
    }
 )
 

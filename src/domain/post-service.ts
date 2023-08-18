@@ -4,35 +4,40 @@ import { PostsInputModel } from '../models/posts/postsInputModel';
 import { PostsViewModel } from '../models/posts/postsViewModel';
 import { blogsRepository } from '../repositories/blogs-repository';
 import { postsRepository } from '../repositories/posts-repository';
+import { queryRepository } from '../query repozitory/queryRepository';
+import { PaginatedPost } from '../models/posts/paginatedQueryPost';
+import { PaginatedType } from '../routers/helpers/pagination';
+ 
+ export type createPostDto = {
 
- 
- 
+ }
  export const postsService = {
 
-    async findAllPosts(): Promise<PostsViewModel[]> {
+    async findAllPosts(pagination: PaginatedType): Promise<PaginatedPost<PostsViewModel>> {
         
-         return await postsRepository.findAllPosts()
+         return await queryRepository.findAllPosts(pagination)
     },
 
     async findPostById( id: string): Promise<PostsViewModel | null> {
         
-         return await postsRepository.findPostById(id)
+         return await queryRepository.findPostById(id)
     },
- 
     async createPost( data: PostsInputModel): Promise<PostsViewModel | null> {
-        const blog = await blogsRepository.findBlogById(data.blogId)
-        if(!blog) return null
+     const blog = await blogsRepository.findBlogById(data.blogId)
+     if(!blog) return null;
 
-        const newPost: PostsMongoDbType = {
-            _id: new ObjectId(data.blogId),
-            ... data,
-            blogName: blog.name,
-            createdAt: new Date().toISOString(), 
-        }
-        const createdPost = await postsRepository.createPost({...newPost}) 
-            
-         return createdPost
-    },
+     const newPost = {
+         ... data,
+         blogName: blog.name,
+         createdAt: new Date().toISOString(), 
+     }
+
+     const createdPost = await postsRepository.createdPostForSpecificBlog(data) 
+         
+      return createdPost;
+ },
+ 
+    
     async updatePost(id: string, data: PostsInputModel): Promise<PostsViewModel | boolean> {
         
          return await postsRepository.updatePost(id, {...data})
