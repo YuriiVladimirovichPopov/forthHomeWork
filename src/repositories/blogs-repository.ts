@@ -39,15 +39,8 @@ export const blogsRepository = {
             page: pagination.pageNumber,
             pageSize: pagination.pageSize,
             totalCount: totalCount,
-            items: result.map(b => ({
-                    id: b._id.toString(),
-                    name: b.name,
-                    description: b.description,
-                    websiteUrl: b.websiteUrl,
-                    createdAt: b.createdAt,
-                    isMembership: b.isMembership
-            }))
-          }
+            items: result.map(b => this._blogMapper(b))
+                          }
           return res
     },
 

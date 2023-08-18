@@ -28,7 +28,7 @@ import { PaginatedType } from '../routers/helpers/pagination';
          createdAt: new Date().toISOString(), 
      }
 
-     const createdPost = await postsRepository.createdPostForSpecificBlog(data) 
+          const createdPost = await postsRepository.createdPostForSpecificBlog(data) 
          
       return createdPost;
  },
