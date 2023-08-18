@@ -88,12 +88,13 @@ async (req: Request, res: Response) => {
 
 // 5 get/blogs/:id       не меняем
 blogsRouter.get('/:id', async (req: RequestWithParams<getByIdParam>, res: Response<BlogViewModel>) => {
-    const foundBlog = await blogService.findBlogById(req.params.id)
-    if (foundBlog) {
-      res.status(sendStatus.OK_200).send(foundBlog)
-    } else {
-      res.sendStatus(sendStatus.NOT_FOUND_404)
-    }
+    const foundBlog = await blogService.findBlogById(req.params.id);
+    if (!foundBlog) return res.sendStatus(sendStatus.NOT_FOUND_404);
+
+      return res.status(sendStatus.OK_200).send(foundBlog);
+   
+      
+    
   })
 
 // 6 put/blogs/:id        не меняем
@@ -121,6 +122,7 @@ async (req: RequestWithParams<getByIdParam>, res: Response) => {
   res.sendStatus(sendStatus.NO_CONTENT_204)
 })
 
-function RouterPath(arg0: {}) {
-  throw new Error("Function not implemented.");
-}
+//function RouterPath(arg0: {}) {
+//  throw new Error("Function not implemented.");
+//}
+//

@@ -24,7 +24,7 @@ export const blogsRepository = {
     async findAllBlogs(pagination: PaginatedType): Promise<PaginatedBlog<BlogViewModel[]>> {
         const filter = {name: {$regex: pagination.searchNameTerm, $options: '1'}}
         const result: WithId<BlogsMongoDbType>[] =
-        await blogsCollection.find(filter, {projection: {_id: 0}}) 
+        await blogsCollection.find(filter) 
             
           .sort({[pagination.sortBy]: pagination.sortDirection})
           .skip(pagination.skip)
@@ -57,7 +57,7 @@ export const blogsRepository = {
         //    return null
         //}
         //const _id = new ObjectId(id)
-        const blogById = await blogsCollection.findOne({id: id}, {projection:{_id:0}})
+        const blogById = await blogsCollection.findOne({_id: new ObjectId(id)},)
         if(!blogById) {
             return null
         }
@@ -103,6 +103,6 @@ export const blogsRepository = {
     }
 }
 
-function _blogMapper(): any {
-    throw new Error("Function not implemented.");
-}
+//function _blogMapper(): any {
+//throw new Error("Function not implemented.");
+//}
