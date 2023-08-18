@@ -33,7 +33,7 @@ import { randomUUID } from 'crypto';
             title: model.title,
             shortDescription: model.shortDescription,
             content: model.content,
-            blogId: blog.id,
+            blogId: model.blogId,
             blogName: blog.name,
             createdAt: new Date().toISOString()
         }

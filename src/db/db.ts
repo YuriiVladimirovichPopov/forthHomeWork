@@ -1,8 +1,8 @@
 import dotenv from 'dotenv'
 dotenv.config()
-import { BlogsMongoDbType, PostsMongoDbType } from '../types';
+import { BlogsMongoDbType, PostsMongoDbType, createPostDTOType } from '../types';
 
-import { MongoClient } from 'mongodb'
+import { MongoClient, WithId } from 'mongodb'
 
 
 

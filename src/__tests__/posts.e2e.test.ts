@@ -1,9 +1,9 @@
 import request  from "supertest"
-import { app } from '../src/settings';
-import { authorizationValidation } from "../src/middlewares/input-validation-middleware";
-import { sendStatus } from "../src/routers/send-status";
-import { PostsViewModel } from "../src/models/posts/postsViewModel";
-import { BlogViewModel } from "../src/models/blogs/blogsViewModel";
+import { app } from '../settings';
+import { authorizationValidation } from "../middlewares/input-validation-middleware";
+import { sendStatus } from "../routers/send-status";
+import { PostsViewModel } from "../models/posts/postsViewModel";
+import { BlogViewModel } from "../models/blogs/blogsViewModel";
 import { randomUUID } from 'crypto';
 
 

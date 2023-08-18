@@ -1,12 +1,12 @@
 import request  from "supertest"
-import { app } from '../src/settings';
-import { authorizationValidation } from "../src/middlewares/input-validation-middleware";
-import { sendStatus } from "../src/routers/send-status";
-import { BlogViewModel } from "../src/models/blogs/blogsViewModel";
-import { BlogInputModel } from '../src/models/blogs/blogsInputModel';
+import { app } from '../settings';
+import { authorizationValidation } from "../middlewares/input-validation-middleware";
+import { sendStatus } from "../routers/send-status";
+import { BlogViewModel } from "../models/blogs/blogsViewModel";
+import { BlogInputModel } from '../models/blogs/blogsInputModel';
 import { createBlog } from "./blog-test-helpers";
-import { blogsCollection } from '../src/db/db';
-import { RouterPaths } from "../src/routerPaths";
+import { blogsCollection } from '../db/db';
+import { RouterPaths } from "../routerPaths";
 
 const getRequest = () => {
     return request(app)

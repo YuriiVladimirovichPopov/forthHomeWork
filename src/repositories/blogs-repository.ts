@@ -53,11 +53,11 @@ export const blogsRepository = {
 
     //5        не меняем
     async findBlogById(id: string):Promise<BlogViewModel | null> {
-        if (!ObjectId.isValid(id)) {
-            return null
-        }
-        const _id = new ObjectId(id)
-        const blogById = await blogsCollection.findOne({_id: _id})
+        //if (!ObjectId.isValid(id)) {
+        //    return null
+        //}
+        //const _id = new ObjectId(id)
+        const blogById = await blogsCollection.findOne({id: id}, {projection:{_id:0}})
         if(!blogById) {
             return null
         }

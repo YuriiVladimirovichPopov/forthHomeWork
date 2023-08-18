@@ -41,7 +41,8 @@ export const createPostValidation =
     [titleValidation, shortDescriptionValidation, contentValidation, blogIdValidation, inputValidationErrors]
 export const updatePostValidation = 
     [titleValidation, shortDescriptionValidation, contentValidation, blogIdValidation, inputValidationErrors]
-
+export const createPostValidationForBlogRouter = 
+    [titleValidation, shortDescriptionValidation, contentValidation, inputValidationErrors]
 
 
 

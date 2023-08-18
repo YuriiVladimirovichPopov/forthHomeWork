@@ -1,6 +1,6 @@
 import  request  from 'supertest';
-import { app } from '../src/settings';
-import { BlogInputModel } from '../src/models/blogs/blogsInputModel';
+import { app } from '../settings';
+import { BlogInputModel } from '../models/blogs/blogsInputModel';
 
 
 

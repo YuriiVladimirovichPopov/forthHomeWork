@@ -10,9 +10,18 @@ import { ObjectId } from 'mongodb';
       createdAt: string,
       isMembership: boolean 
   }
-
+    
   export type PostsMongoDbType = {
       _id: ObjectId,
+      title: string,
+      shortDescription: string,
+      content: string,
+      blogId: string,
+      blogName: string,
+      createdAt: string
+  }
+
+  export type createPostDTOType = {         // DTO: data transfer object
       title: string,
       shortDescription: string,
       content: string,
