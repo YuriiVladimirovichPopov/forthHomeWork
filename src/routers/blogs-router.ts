@@ -18,6 +18,7 @@ import { blogsRepository } from "../repositories/blogs-repository";
 import { postsRepository } from "../repositories/posts-repository";
 import { PostsInputModel } from '../models/posts/postsInputModel';
 import { postsService } from "../domain/post-service";
+import { PostsViewModel } from "../models/posts/postsViewModel";
 
 
 export const blogsRouter = Router({})
@@ -58,7 +59,7 @@ const pagination = getPaginationFromQuery(req.query)
 })
 
 // 4 post blogs/:blogId/posts           меняем(добавляем пагинацию)   доделать    READY
-blogsRouter.post('/:blogId/posts', 
+blogsRouter.post('/blogs/:blogId/posts', 
 authorizationValidation,
 createPostValidationForBlogRouter,
  
@@ -68,7 +69,7 @@ async (req: Request, res: Response) => {
   
   const {title, shortDescription, content} = req.body;
   //todo create by service
-  const newPostForBlogById: PostsInputModel | null = await postsService.createPost(
+  const newPostForBlogById: PostsViewModel | null = await postsService.createPost(
       {title, shortDescription, content, blogId})
 
     if(newPostForBlogById) {

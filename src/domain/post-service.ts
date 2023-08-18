@@ -1,5 +1,3 @@
-import { PostsMongoDbType } from '../types';
-import { ObjectId } from 'mongodb';
 import { PostsInputModel } from '../models/posts/postsInputModel';
 import { PostsViewModel } from '../models/posts/postsViewModel';
 import { blogsRepository } from '../repositories/blogs-repository';
@@ -8,9 +6,7 @@ import { queryRepository } from '../query repozitory/queryRepository';
 import { PaginatedPost } from '../models/posts/paginatedQueryPost';
 import { PaginatedType } from '../routers/helpers/pagination';
  
- export type createPostDto = {
-
- }
+ 
  export const postsService = {
 
     async findAllPosts(pagination: PaginatedType): Promise<PaginatedPost<PostsViewModel>> {
