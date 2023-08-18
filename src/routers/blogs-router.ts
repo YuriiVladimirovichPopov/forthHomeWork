@@ -41,10 +41,11 @@ blogsRouter.post('/',
   return res.status(sendStatus.CREATED_201).send(newBlog)
 })
   
-// 3 blogs/{blogId}/posts         меняем(добавляем пагинацию)   доделать    SO-SO READY
-blogsRouter.get('/blogs/:blogId/posts', authorizationValidation, 
+// 3 blogs/:blogId/posts         меняем(добавляем пагинацию)   доделать    SO-SO READY
+blogsRouter.get('/:blogId/posts', authorizationValidation, 
 
 async (req: Request<{blogId: string}, {}, {}, {}>, res: Response) => { 
+  console.log('get method get posts by params');
 
   const blogWithPosts = await blogService.findBlogById(req.params.blogId)
   if (!blogWithPosts) {
@@ -59,11 +60,12 @@ const pagination = getPaginationFromQuery(req.query)
 })
 
 // 4 post blogs/:blogId/posts           меняем(добавляем пагинацию)   доделать    READY
-blogsRouter.post('/blogs/:blogId/posts', 
+blogsRouter.post('/:blogId/posts', 
 authorizationValidation,
 createPostValidationForBlogRouter,
  
 async (req: Request, res: Response) => {
+  console.log('post method create post by params');
   
   const blogId = req.params.blogId;
   
@@ -75,7 +77,7 @@ async (req: Request, res: Response) => {
     if(newPostForBlogById) {
       return res.status(sendStatus.CREATED_201).send(newPostForBlogById);
     }
-      return res.sendStatus(404)
+      return res.sendStatus(sendStatus.NOT_FOUND_404)
    })
 
 // 5 get/blogs/:id       не меняем
