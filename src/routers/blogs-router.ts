@@ -35,9 +35,9 @@ blogsRouter.post('/',
   authorizationValidation,
   ...createBlogValidation,
   async (req: RequestWithBody<BlogViewModel>, res: Response<BlogViewModel>) => {
-  
+  console.log('roter before query')
   const newBlog = await blogService.createBlog(req.body) 
-  
+  console.log('router after q')
   return res.status(sendStatus.CREATED_201).send(newBlog)
 })
   
@@ -45,7 +45,6 @@ blogsRouter.post('/',
 blogsRouter.get('/:blogId/posts',  
 
 async (req: Request<{blogId: string}, {}, {}, {}>, res: Response) => { 
-
   const blogWithPosts = await blogService.findBlogById(req.params.blogId)
   if (!blogWithPosts) {
     res.sendStatus(sendStatus.NOT_FOUND_404)
